@@ -8,6 +8,6 @@
   #+asdf-unicode :encoding #+asdf-unicode :utf-8
   :components ()
   :depends-on (:alexandria :array-operations :closer-mop
+               "fusion-category.operator"
                "fusion-category.ordered-set"
-               "fusion-category.vector-space")
-  )
+               "fusion-category.vector-space"))

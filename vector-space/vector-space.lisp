@@ -54,12 +54,12 @@
   "Generate a not so random complex number."
   (+ (random n) (* (random n) #c(0 1))))
 
-(defmethod random-element ((V vector-space))
+(defmethod example ((V vector-space))
   "Generate a random vector for the vector space V."
   (let ((dim (dim V)))
     (make-vect V (loop for i from 1 to dim collect (crandom 3)))))
 
-(defmethod <+> ((v0 vect) (v1 vect))
+(defmethod <+>-binary ((v0 vect) (v1 vect))
   "Sum of two vectors."
   (let ((c0 (coef v0)) (A0 (amb v0))
         (c1 (coef v1)) (A1 (amb v1)))
@@ -69,17 +69,17 @@
                      for j in c1
                      collect (+ i j)))))
 
-(defmethod <*> ((s number) (v vect))
+(defmethod <*>-binary ((s number) (v vect))
   "Scalar product of a vector."
   (let ((c (coef v)) (A (amb v)))
     (make-vect A (loop for i in c
                        collect (* s i)))))
 
-(defmethod <*> ((v vect) (s number))
+(defmethod <*>-binary ((v vect) (s number))
   "Scalar product of a vector."
-  (<*> s v))
+  (<*>-binary s v))
 
-(defmethod <+> ((V0 vector-space)
+(defmethod <+>-binary ((V0 vector-space)
                 (V1 vector-space))
   "Direct sum of two vector spaces."
   (let ((d0 (dim V0)) (b0 (basis V0))
@@ -88,7 +88,7 @@
                    :dim (+ d0 d1)
                    :basis (fusion-category.ordered-set::coproduct b0 b1))))
 
-(defmethod <*> ((V0 vector-space)
+(defmethod <*>-binary ((V0 vector-space)
                 (V1 vector-space))
   "Tensor product of two vector spaces."
   (let ((d0 (dim V0)) (b0 (basis V0))
@@ -97,15 +97,15 @@
                    :dim (* d0 d1)
                    :basis (fusion-category.ordered-set::product b0 b1))))
 
-(defmethod coproduct ((V0 vector-space)
-                      (V1 vector-space))
+(defmethod coproduct-binary ((V0 vector-space)
+                             (V1 vector-space))
   "Direct sum of two vector spaces."
-  (<+> V0 V1))
+  (<+>-binary V0 V1))
 
-(defmethod product ((V0 vector-space)
-                    (V1 vector-space))
+(defmethod product-binary ((V0 vector-space)
+                           (V1 vector-space))
   "Tensor product of two vector spaces."
-  (<*> V0 V1))
+  (<*>-binary V0 V1))
 
 (defclass dual-vector-space (vector-space)
   ((pre-dual
@@ -133,3 +133,6 @@ so, take the naive inner product of their coefficients."
                  finally (return total)))
           (t (error "One of the vector must be in the dual of the
         ambient space of the other vector.")))))
+
+(fusion-category.operator:def-multiary-operator <+>)
+(fusion-category.operator:def-multiary-operator <*>)

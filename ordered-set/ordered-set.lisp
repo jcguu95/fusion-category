@@ -13,7 +13,7 @@
   ;; there must be a bijection between {1.. size}, keys, and the
   ;; images of keys.
   ;;
-  ;; Use the constructors #'ordered-set<-list, product, coproduct
+  ;; Use the constructors #'ordered-set<-list, product-binary, coproduct-binary
   ;; to safely construct an ordered set.
   ;;
   ;; Use #'element to lookup element in an ordered set. TODO It's
@@ -60,9 +60,9 @@
       (elt (content os) query)
       (elt (content os) (gethash (car query) (lkup-table os)))))
 
-(defgeneric coproduct (x y))
+(defgeneric coproduct-binary (x y))
 
-(defmethod coproduct ((h0 hash-table) (h1 hash-table))
+(defmethod coproduct-binary ((h0 hash-table) (h1 hash-table))
   ;; ht util
   "Return the union of the hash tables."
   (let ((h (make-hash-table)))
@@ -74,19 +74,19 @@
      (alexandria:copy-hash-table h1))
     h))
 
-(defmethod coproduct ((x0 list) (x1 list))
+(defmethod coproduct-binary ((x0 list) (x1 list))
   ;; list util
   (copy-seq (concatenate 'list x0 x1)))
 
-(defmethod coproduct ((v0 array) (v1 array))
+(defmethod coproduct-binary ((v0 array) (v1 array))
   ;; array util
   (let ((l0 (length v0))
         (l1 (length v1)))
     (make-array (+ l0 l1)
                 :initial-contents
-                (coproduct (coerce v0 'list) (coerce v1 'list)))))
+                (coproduct-binary (coerce v0 'list) (coerce v1 'list)))))
 
-(defmethod coproduct ((s0 ordered-set) (s1 ordered-set))
+(defmethod coproduct-binary ((s0 ordered-set) (s1 ordered-set))
   "Return the union ordered set of s0 and s1."
   (let* ((c0 (copy-seq (content s0)))
          (c1 (copy-seq (content s1)))
@@ -95,26 +95,26 @@
          (shift (length c0)))
     (maphash #'(lambda (k v) (setf (gethash k lt1) (+ v shift))) lt1)
     (make-instance 'ordered-set
-                   :content (coproduct c0 c1)
-                   :lkup-table (coproduct lt0 lt1))))
+                   :content (coproduct-binary c0 c1)
+                   :lkup-table (coproduct-binary lt0 lt1))))
 
-(defgeneric product (collection-0 collection-1))
-(defmethod product ((x0 list) (x1 list))
+(defgeneric product-binary (collection-0 collection-1))
+(defmethod product-binary ((x0 list) (x1 list))
   ;; list util
   (loop for x in x0
         collect (loop for x- in x1
                       collect (list x x-))))
 
-(defmethod product ((v0 vector) (v1 vector))
+(defmethod product-binary ((v0 vector) (v1 vector))
   ;; array util
   ;; Usually used with #'aops:flatten to get back to a 1D array.
   (make-array (list (length v0) (length v1))
               :initial-contents
-              (product (coerce v0 'list) (coerce v1 'list))))
+              (product-binary (coerce v0 'list) (coerce v1 'list))))
 
-(defmethod product ((h0 hash-table) (h1 hash-table))
+(defmethod product-binary ((h0 hash-table) (h1 hash-table))
   ;; ht util
-  "Return the product of the hash tables."
+  "Return the product-binary of the hash tables."
   (let ((h (make-hash-table))
         (h0 (alexandria:copy-hash-table h0))
         (h1 (alexandria:copy-hash-table h1)))
@@ -125,11 +125,16 @@
                                   (gethash key1 h1)))))
     h))
 
-(defmethod product ((os0 ordered-set) (os1 ordered-set))
+(defmethod product-binary ((os0 ordered-set) (os1 ordered-set))
   (let ((lt0 (alexandria:copy-hash-table (lkup-table os0)))
         (lt1 (alexandria:copy-hash-table (lkup-table os1)))
         (c0 (copy-seq (content os0)))
         (c1 (copy-seq (content os1))))
     (make-instance 'ordered-set
-                   :content (aops:flatten (product c0 c1))
-                   :lkup-table (product lt0 lt1))))
+                   :content (aops:flatten (product-binary c0 c1))
+                   :lkup-table (product-binary lt0 lt1))))
+
+;; TODO Maybe I should call product <*> and coproduct <+> as in before.
+
+(fusion-category.operator:def-multiary-operator product)
+(fusion-category.operator:def-multiary-operator coproduct)
