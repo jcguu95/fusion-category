@@ -20,6 +20,13 @@
                    :dim dim
                    :basis os)))
 
+(defun generate-vector-space (dim)
+  (assert (integerp dim))
+  (assert (>= dim 0))
+  (let ((size dim))
+    (vector-space<-ordered-set
+     (fusion-category.ordered-set::generate-ordered-set size))))
+
 ;; Definition of #'vector-space<-list
 (setf (fdefinition 'vector-space<-list)
       (lambda (xs)

@@ -51,6 +51,11 @@
           do (setf (gethash i (lkup-table set)) i))
     set))
 
+(defun generate-ordered-set (size)
+  (assert (integerp size))
+  (assert (>= size 0))
+  (ordered-set<-list (loop for i from 1 to size collect (gensym))))
+
 (defgeneric element (query collection))
 
 ;; TODO Make #'element setf-able.
