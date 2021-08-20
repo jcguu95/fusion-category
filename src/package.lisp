@@ -1,2 +1,1 @@
-(defpackage fusion-category
-  (:use #:cl))
+(defpackage fusion-category (:use #:cl))

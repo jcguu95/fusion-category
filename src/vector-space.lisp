@@ -9,6 +9,7 @@
     :accessor basis)))
 
 (defmethod initialize-instance :after ((V vector-space) &key)
+  ;; TODO Make a copy of each slot.. we want immutability.
   (assert (integerp (dim V)))
   (assert (>= (dim V) 0))
   (assert (eq (class-of (basis V))
@@ -29,11 +30,11 @@
 ;; Definition of #'vs<-list
 (setf (fdefinition 'vs<-list) #'vector-space<-list)
 
-(defun generate-vector-space (dim)
+(defun gen-vector-space (dim)
   (assert (integerp dim))
   (assert (>= dim 0))
   (let ((size dim))
-    (vs<-list (generate-list size))))
+    (vs<-list (gen-list size))))
 
 (defclass vect ()
   ((ambient-space
@@ -44,6 +45,7 @@
     :accessor coef)))
 
 (defmethod initialize-instance :after ((v vect) &key)
+  ;; TODO Make a copy of each slot.. we want immutability.
   (let* ((amb (amb v))
          (dim (dim amb))
          (coef (coef v))
@@ -58,11 +60,11 @@
   (make-instance 'vect :amb V :coef coeffs))
 
 (defun crandom (&optional (n 3))
-  "Generate a not so random complex number."
+  "Gen a not so random complex number."
   (+ (random n) (* (random n) #c(0 1))))
 
 (defmethod example ((V vector-space))
-  "Generate a random vector for the vector space V."
+  "Gen a random vector for the vector space V."
   (let ((dim (dim V)))
     (make-vect V (loop for i from 1 to dim collect (crandom 3)))))
 
@@ -99,8 +101,8 @@
 
 ;; ;; FIXME seriously broken
 ;; (<+>-binary
-;;  (generate-vector-space 3)
-;;  (generate-vector-space 3))
+;;  (gen-vector-space 3)
+;;  (gen-vector-space 3))
 
 (defmethod <*>-binary ((V0 vector-space)
                        (V1 vector-space))
@@ -153,5 +155,6 @@ so, take the naive inner product of their coefficients."
 (def-multiary-operator coproduct)
 (def-multiary-operator product)
 
-;; (fusion-category.operator:def-multiary-operator +-+) ;;FIXME broken.. subtly
-
+;; TODO
+;; linear transformations
+;; (data:matrices) <+> <*>

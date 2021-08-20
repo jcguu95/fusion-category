@@ -3,9 +3,12 @@
 (asdf:defsystem :fusion-category
   :serial t
   :depends-on (:alexandria
-               :array-operations :closer-mop)
+               :array-operations
+               :closer-mop)
   :components ((:module "src"
                 :components ((:file "package")
                              (:file "operator")
                              (:file "ordered-set")
-                             (:file "vector-space")))))
+                             (:file "vector-space")
+                             (:file "fusion-category")
+                             ))))

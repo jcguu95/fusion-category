@@ -28,6 +28,7 @@
     :accessor lkup-table)))
 
 (defmethod initialize-instance :after ((os ordered-set) &key)
+  ;; TODO Make a copy of each slot.. we want immutability.
   (assert (not (has-duplicate-element? (content os)))))
 
 (defgeneric has-duplicate-elements (collection))
@@ -51,16 +52,16 @@
           do (setf (gethash i (lkup-table set)) i))
     set))
 
-(defun generate-list (size)
+(defun gen-list (size)
   ;; list-util
   (assert (integerp size))
   (assert (>= size 0))
   (loop for i from 1 to size collect (gensym)))
 
-(defun generate-ordered-set (size)
+(defun gen-ordered-set (size)
   (assert (integerp size))
   (assert (>= size 0))
-  (ordered-set<-list (generate-list size)))
+  (ordered-set<-list (gen-list size)))
 
 (defgeneric element (query collection))
 
