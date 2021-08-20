@@ -1,4 +1,4 @@
-(in-package :fusion-category.ordered-set)
+(in-package :fusion-category)
 
 ;; TODO Move the utils for arrays, hash-tables, and lists to
 ;; another minion file.
@@ -51,10 +51,16 @@
           do (setf (gethash i (lkup-table set)) i))
     set))
 
+(defun generate-list (size)
+  ;; list-util
+  (assert (integerp size))
+  (assert (>= size 0))
+  (loop for i from 1 to size collect (gensym)))
+
 (defun generate-ordered-set (size)
   (assert (integerp size))
   (assert (>= size 0))
-  (ordered-set<-list (loop for i from 1 to size collect (gensym))))
+  (ordered-set<-list (generate-list size)))
 
 (defgeneric element (query collection))
 
@@ -141,5 +147,5 @@
 
 ;; TODO Maybe I should call product <*> and coproduct <+> as in before.
 
-(fusion-category.operator:def-multiary-operator product)
-(fusion-category.operator:def-multiary-operator coproduct)
+(def-multiary-operator product)
+(def-multiary-operator coproduct)

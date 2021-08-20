@@ -1,4 +1,4 @@
-(in-package fusion-category.vector-space)
+(in-package fusion-category)
 
 (defclass vector-space ()
   ((dimension
@@ -11,29 +11,29 @@
 (defmethod initialize-instance :after ((V vector-space) &key)
   (assert (integerp (dim V)))
   (assert (>= (dim V) 0))
-  (assert (eq (class-of (basis V)) (find-class 'fusion-category.ordered-set::ordered-set)))
-  (assert (= (fusion-category.ordered-set::size (basis V)) (dim V))))
+  (assert (eq (class-of (basis V))
+              (find-class 'ordered-set)))
+  (assert (= (size (basis V)) (dim V))))
 
 (defun vector-space<-ordered-set (os)
-  (let ((dim (fusion-category.ordered-set::size os)))
+  (let ((dim (size os)))
     (make-instance 'vector-space
                    :dim dim
                    :basis os)))
-
-(defun generate-vector-space (dim)
-  (assert (integerp dim))
-  (assert (>= dim 0))
-  (let ((size dim))
-    (vector-space<-ordered-set
-     (fusion-category.ordered-set::generate-ordered-set size))))
 
 ;; Definition of #'vector-space<-list
 (setf (fdefinition 'vector-space<-list)
       (lambda (xs)
         (vector-space<-ordered-set
-         (fusion-category.ordered-set::ordered-set<-list xs))))
+         (ordered-set<-list xs))))
 ;; Definition of #'vs<-list
 (setf (fdefinition 'vs<-list) #'vector-space<-list)
+
+(defun generate-vector-space (dim)
+  (assert (integerp dim))
+  (assert (>= dim 0))
+  (let ((size dim))
+    (vs<-list (generate-list size))))
 
 (defclass vect ()
   ((ambient-space
@@ -87,22 +87,29 @@
   (<*>-binary s v))
 
 (defmethod <+>-binary ((V0 vector-space)
-                (V1 vector-space))
+                       (V1 vector-space))
   "Direct sum of two vector spaces."
   (let ((d0 (dim V0)) (b0 (basis V0))
         (d1 (dim V1)) (b1 (basis V1)))
+    ;; (coproduct b0 b1) ;testing FIXME
     (make-instance 'vector-space
                    :dim (+ d0 d1)
-                   :basis (fusion-category.ordered-set::coproduct b0 b1))))
+                   :basis (coproduct b0 b1))
+    ))
+
+;; ;; FIXME seriously broken
+;; (<+>-binary
+;;  (generate-vector-space 3)
+;;  (generate-vector-space 3))
 
 (defmethod <*>-binary ((V0 vector-space)
-                (V1 vector-space))
+                       (V1 vector-space))
   "Tensor product of two vector spaces."
   (let ((d0 (dim V0)) (b0 (basis V0))
         (d1 (dim V1)) (b1 (basis V1)))
     (make-instance 'vector-space
                    :dim (* d0 d1)
-                   :basis (fusion-category.ordered-set::product b0 b1))))
+                   :basis (product b0 b1))))
 
 (defmethod coproduct-binary ((V0 vector-space)
                              (V1 vector-space))
@@ -141,5 +148,10 @@ so, take the naive inner product of their coefficients."
           (t (error "One of the vector must be in the dual of the
         ambient space of the other vector.")))))
 
-(fusion-category.operator:def-multiary-operator <+>)
-(fusion-category.operator:def-multiary-operator <*>)
+(def-multiary-operator <+>)
+(def-multiary-operator <*>)
+(def-multiary-operator coproduct)
+(def-multiary-operator product)
+
+;; (fusion-category.operator:def-multiary-operator +-+) ;;FIXME broken.. subtly
+
